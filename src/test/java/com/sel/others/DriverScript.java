@@ -284,8 +284,21 @@ public class DriverScript {
 		switch (testParameters.getExecutionMode()) {
 
 		case LOCAL:
-			WebDriver webDriver = WebDriverFactory.getWebDriver(testParameters.getBrowser());
-			driver = new SelDriver(webDriver);
+			// WebDriver webDriver = WebDriverFactory.getWebDriver(testParameters.getBrowser());
+			System.setProperty("webdriver.chrome.driver","/app/bin/chromedriver");
+			ChromeOptions options = new ChromeOptions();
+			options.addArguments("--headless");
+			options.addArguments("--no-sandbox");
+			System.setProperty("webdriver.chrome.args", "--disable-logging");
+			System.setProperty("webdriver.chrome.silentOutput", "true");
+			options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+			options.addArguments("disable-infobars"); // disabling infobars
+			options.addArguments("--disable-extensions"); // disabling extensions
+			options.addArguments("--disable-gpu"); // applicable to windows os only
+			options.addArguments("window-size=1024,768"); // Bypass OS security model
+			//options.setCapability("chrome.verbose", false); //disable logging
+			// WebDriver driver = new ChromeDriver(options);
+			driver = new SelDriver(options);
 			driver.setTestParameters(testParameters);
 			WaitPageLoad();
 			break;
