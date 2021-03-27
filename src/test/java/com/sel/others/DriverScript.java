@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 //import com.experitest.client.Client;
@@ -297,8 +299,8 @@ public class DriverScript {
 			options.addArguments("--disable-gpu"); // applicable to windows os only
 			options.addArguments("window-size=1024,768"); // Bypass OS security model
 			//options.setCapability("chrome.verbose", false); //disable logging
-			// WebDriver driver = new ChromeDriver(options);
-			driver = new SelDriver(options);
+			WebDriver webDriver = new ChromeDriver(options);
+			driver = new SelDriver(webDriver);
 			driver.setTestParameters(testParameters);
 			WaitPageLoad();
 			break;

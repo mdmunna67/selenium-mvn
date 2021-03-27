@@ -1,20 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>com.SBI</groupId>
 	<artifactId>Sel</artifactId>
 	<version>3.0</version>
 	<packaging>jar</packaging>
-
+	
 	<name>Sel Automation Framework</name>
 	<url>http://maven.apache.org</url>
-	<!-- <repositories>
-		<repository>
-			<id>Experitest.repo1</id>
-			<url>http://repo.experitest.com:8010/Maven2/</url>
-		</repository>
-	</repositories> -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<selenium.standalone>3.141.59</selenium.standalone>
@@ -29,8 +22,8 @@
 		<aspectj.version>1.8.10</aspectj.version>
 		<allure.version>1.5.4</allure.version>
 	</properties>
-	<profiles>
-		
+	
+	<!-- 	
 		<profile>
 			<id>Smoke</id>
 			<activation>
@@ -142,8 +135,102 @@
 				</plugins>
 			</build>
 		</profile>	 
-	
+	 -->
+	 
+	 <profiles>
+		<profile>
+			<id>runTestNGTests</id>
+			<properties>
+				<testNG.suiteXmlFile>src/test/resources/OtherRunners/testng_smoke.xml</testNG.suiteXmlFile>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<source>${source.and.target.JVM.version}</source>
+							<target>${source.and.target.JVM.version}</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-surefire-plugin.version}</version>
+						<configuration>
+							<suiteXmlFiles>
+								<suiteXmlFile>${testNG.suiteXmlFile}</suiteXmlFile>
+							</suiteXmlFiles>
+							<argLine>
+								-javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+							</argLine>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>integration-test</phase>
+								<goals>
+									<goal>test</goal>
+								</goals>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>org.aspectj</groupId>
+								<artifactId>aspectjweaver</artifactId>
+								<version>${aspectj.version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+			<reporting>
+				<excludeDefaults>true</excludeDefaults>
+				<plugins>
+					<plugin>
+						<groupId>ru.yandex.qatools.allure</groupId>
+						<artifactId>allure-maven-plugin</artifactId>
+						<version>2.5</version>
+						<configuration>
+							<reportDirectory> ${project.build.directory}/site/allure-results</reportDirectory>
+						</configuration>
+					</plugin>
+				</plugins>
+			</reporting>
+		</profile>
+
+		<profile>
+			<id>runAllocator</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<source>${source.and.target.JVM.version}</source>
+							<target>${source.and.target.JVM.version}</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>${org.codehaus.mojo.exec-maven-plugin.version}</version>
+						<configuration>
+							<mainClass>runners.Allocator</mainClass>
+							<classpathScope>test</classpathScope>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		
 	</profiles>
+	 
+	
 	
 	<dependencies>
 			<!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
