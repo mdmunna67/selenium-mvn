@@ -1,0 +1,67 @@
+#!/usr/bin/env groovy
+@Library('Common') _
+def common = new Common()
+
+pipeline {
+    agent { label 'jenkins-master' }
+    parameters {
+        string(name: 'INITIALIZE_WALLET', defaultValue: 'false', description: 'if true Initializes wallets from scratch, fund them, otherwise: Use existing wallets.')
+        string(name: 'SBI_ENVIRONMENT_FOR_TESTING', defaultValue: 'dev', description: 'env to run Selenium test against')
+        string(name: 'TESTS_TO_RUN', defaultValue: 'iwcHP', description: 'test package to run, possible values: iwcHP, webAdminHP, or HappyPath')
+        string(name: 'TEST_RAIL', defaultValue: 'false', description: 'creates a HappyPath test run in TestRail and reports the results when set to true')
+    }
+    environment {
+        SBI_ENVIRONMENT_FOR_TESTING = "${params.SBI_ENVIRONMENT_FOR_TESTING}"
+        INITIALIZE_WALLET = "${params.INITIALIZE_WALLET}"
+        TESTS_TO_RUN = "${params.TESTS_TO_RUN}"
+        TEST_RAIL = "${params.TEST_RAIL}"
+    }
+    stages {
+        stage('Set the jdk and Maven') {
+            steps {
+                script {
+                    def scmVars = checkout scm
+                    env.SCM_GIT_BRANCH = "${scmVars.GIT_BRANCH}"
+                    common.setEnvVar(this, env.SCM_GIT_BRANCH)
+                    env.MAVEN_VERSION = getMavenVersion()
+                }
+            }
+        }
+        stage('Build selenium jar') {
+            steps{
+                dir("test-automation") {
+                    withMaven(common.MAVEN_CONFIGURATION(this)) {
+                        withCredentials([file(credentialsId: 'selenium_credential_resources', variable: 'selenium_credentials_resources')]){ 
+                                sh "echo ======= Building the selenium jar =========="
+                                sh "tar -xvzf \$selenium_credentials_resources"
+                                sh 'mvn clean install -DskipTests'
+                        } 
+                    }
+                }
+            }
+        }    
+        stage('Run Selenium test') {
+            steps{
+                dir("test-automation/target") {
+                    sh "echo Going to run the Selenium test for env: \"${SBI_ENVIRONMENT_FOR_TESTING}\""
+                    sh "${JAVA_HOME}/bin/java -jar Test-Automation-Full-Suite-1.0-SNAPSHOT.jar"
+                    // Remove Selenium creds
+                    sh "cd ..; find -iname *.credentials -exec rm {} \\;"
+
+                }
+            }
+        }
+    }
+}  
+
+def getMavenVersion() {
+    def pom = readMavenPom file: 'pom.xml'
+    def gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+    def versionNumber
+    if (gitCommit == null) {
+        versionNumber = env.BUILD_NUMBER
+    } else {
+        versionNumber = gitCommit.take(8)
+    }
+    return pom.version.replace("-SNAPSHOT", "-${versionNumber}")
+}

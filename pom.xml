@@ -1,0 +1,266 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.SBI</groupId>
+	<artifactId>Sel</artifactId>
+	<version>3.0</version>
+	<packaging>jar</packaging>
+
+	<name>Sel Automation Framework</name>
+	<url>http://maven.apache.org</url>
+	<!-- <repositories>
+		<repository>
+			<id>Experitest.repo1</id>
+			<url>http://repo.experitest.com:8010/Maven2/</url>
+		</repository>
+	</repositories> -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<selenium.standalone>3.141.59</selenium.standalone>
+		<java.client.appium>6.1.0</java.client.appium>
+		<org.testng>6.14.3</org.testng>
+		<source.and.target.JVM.version>1.8</source.and.target.JVM.version>
+		<org.apache.maven.plugins.maven-compiler-plugin.version>3.8.0</org.apache.maven.plugins.maven-compiler-plugin.version>
+		<org.codehaus.mojo.exec-maven-plugin.version>3.0.0</org.codehaus.mojo.exec-maven-plugin.version>
+		<org.apache.maven.plugins.maven-surefire-plugin.version>2.22.0</org.apache.maven.plugins.maven-surefire-plugin.version>
+		<skipTests>false</skipTests>
+		<!-- Allure reporting properties -->
+		<aspectj.version>1.8.10</aspectj.version>
+		<allure.version>1.5.4</allure.version>
+	</properties>
+	<profiles>
+		
+		<profile>
+			<id>Smoke</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<testNG.suiteXmlFile>src/test/resources/OtherRunners/testng_smoke.xml</testNG.suiteXmlFile>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<source>${source.and.target.JVM.version}</source>
+							<target>${source.and.target.JVM.version}</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-surefire-plugin.version}</version>
+						<configuration>
+							<suiteXmlFiles>
+								<suiteXmlFile>${testNG.suiteXmlFile}</suiteXmlFile>
+							</suiteXmlFiles>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>integration-test</phase>
+								<goals>
+									<goal>test</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+		                <groupId>org.apache.maven.plugins</groupId>
+		                <artifactId>maven-dependency-plugin</artifactId>
+		                <executions>
+		                    <execution>
+		                        <id>copy-dependencies</id>
+		                        <phase>prepare-package</phase>
+		                        <goals>
+		                            <goal>copy-dependencies</goal>
+		                        </goals>
+		                        <configuration>
+		                            <outputDirectory>
+		                                ${project.build.directory}/libs
+		                            </outputDirectory>
+		                        </configuration>
+		                    </execution>
+		                </executions>
+		            </plugin>
+		            <plugin>
+		                <groupId>org.apache.maven.plugins</groupId>
+		                <artifactId>maven-jar-plugin</artifactId>
+		                <version>3.1.0</version>
+		                <executions>
+		                    <execution>
+		                        <goals>
+		                            <goal>test-jar</goal>
+		                        </goals>
+		                    </execution>
+		                </executions>
+		            </plugin>
+				</plugins>
+			</build>
+			<reporting>
+				<excludeDefaults>true</excludeDefaults>
+				<plugins>
+					<plugin>
+						<groupId>ru.yandex.qatools.allure</groupId>
+						<artifactId>allure-maven-plugin</artifactId>
+						<version>2.5</version>
+						<configuration>
+							<reportDirectory> ${project.build.directory}/site/allure-results</reportDirectory>
+						</configuration>
+					</plugin>
+				</plugins>
+			</reporting>
+		</profile>
+	
+		<profile>
+			<id>allocator</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<source>${source.and.target.JVM.version}</source>
+							<target>${source.and.target.JVM.version}</target>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>${org.codehaus.mojo.exec-maven-plugin.version}</version>
+						<configuration>
+							<mainClass>runners.Allocator</mainClass>
+							<classpathScope>test</classpathScope>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>	 
+	
+	</profiles>
+	
+	<dependencies>
+			<!-- https://mvnrepository.com/artifact/io.github.bonigarcia/webdrivermanager -->
+		<dependency>
+		    <groupId>io.github.bonigarcia</groupId>
+		    <artifactId>webdrivermanager</artifactId>
+		    <version>4.2.2</version>
+		</dependency>
+
+	
+		<!-- Selenium Dependency -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>${selenium.standalone}</version>
+		</dependency>
+
+		<!-- Appium Dependency -->
+		<dependency>
+			<groupId>io.appium</groupId>
+			<artifactId>java-client</artifactId>
+			<version>${java.client.appium}</version>
+		</dependency>
+
+		<!-- TestNG Dependency -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>${org.testng}</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-api -->
+		<dependency>
+		    <groupId>org.seleniumhq.selenium</groupId>
+		    <artifactId>selenium-api</artifactId>
+		    <version>3.141.59</version>
+		</dependency>
+		
+
+		<!-- Added for JIRA Dependency -->
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.19</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
+		<dependency>
+		    <groupId>org.mongodb</groupId>
+		    <artifactId>mongo-java-driver</artifactId>
+		    <version>3.12.7</version>
+		</dependency>
+		
+
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
+			<version>1.19</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<!-- Apache POI Dependency -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.14</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.14</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-schemas</artifactId>
+			<version>3.14</version>
+		</dependency>
+
+		<dependency>
+			<groupId>stax</groupId>
+			<artifactId>stax-api</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
+		<!-- Seetest Dependency -->
+		<!-- <dependency>
+			<groupId>com.experitest</groupId>
+			<artifactId>SeeTestClient</artifactId>
+			<version>10.8</version>
+		</dependency> -->
+
+		<!-- https://mvnrepository.com/artifact/io.qameta.allure/allure-maven -->
+		<!-- <dependency>
+		    <groupId>io.qameta.allure</groupId>
+		    <artifactId>allure-maven</artifactId>
+		    <version>2.8</version>
+		</dependency> -->
+
+		<!-- Allure reporting -->
+		<dependency>
+			<groupId>ru.yandex.qatools.allure</groupId>
+			<artifactId>allure-testng-adaptor</artifactId>
+			<version>${allure.version}</version>
+		</dependency>
+	</dependencies>
+
+</project>
